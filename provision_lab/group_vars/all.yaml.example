@@ -1,0 +1,15 @@
+lab_name: "YOUR LAB NAME"
+
+res_group_location: eastus
+
+virtual_network_cidr: 10.0.0.0/24
+
+storage_class: Standard_LRS
+azure_client_id: "AZURE CLIENT ID"
+azure_tenant: "AZURE TENANT ID"
+azure_subscription_id: "AZURE SUBSCRIPTION ID"
+azure_secret: "AZURE SECRET"
+
+ssh_key_list:
+  - path: /home/YOUR USERNAME/.ssh/authorized_keys
+    key_data: YOUR PUBLIC KEY
