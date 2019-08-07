@@ -1,0 +1,38 @@
+---
+- name: "Provision Ansible LAB"
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+
+  tasks:
+
+    - name: "Create VM CentOS 1"
+      import_role:
+        name: azure_vm
+      vars:
+        ssh_key_list: "{{ ssh_key_list }}"
+        vm_name: "centos1"
+        default_username: "mouimet"
+        vm_size: Standard_D2_v3
+        ip_address: "10.0.0.11"
+        image:
+          offer: Centos
+          publisher: OpenLogic
+          sku: '7.4'
+          version: latest
+
+    - name: "Create VM CentOS 2"
+      import_role:
+        name: azure_vm
+      vars:
+        ssh_key_list: "{{ ssh_key_list }}"
+        vm_name: "centos2"
+        default_username: "mouimet"
+        vm_size: Standard_D2_v3
+        ip_address: "10.0.0.12"
+        image:
+          offer: Centos
+          publisher: OpenLogic
+          sku: '7.4'
+          version: latest

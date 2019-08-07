@@ -1,0 +1,86 @@
+
+
+- name: Create storage account
+  azure_rm_storageaccount:
+    client_id: "{{ azure_client_id }}"
+    tenant: "{{ azure_tenant }}"
+    subscription_id: "{{ azure_subscription_id }}"
+    secret: "{{ azure_secret }}"
+    resource_group: "{{ res_group }}"
+    name: "lrs{{ vm_name }}"
+    account_type: "{{ storage_class }}"
+
+- name: Create public ip for Linux VM
+  azure_rm_publicipaddress:
+    client_id: "{{ azure_client_id }}"
+    tenant: "{{ azure_tenant }}"
+    subscription_id: "{{ azure_subscription_id }}"
+    secret: "{{ azure_secret }}"
+    resource_group: "{{ res_group }}"
+    allocation_method: Static
+    name: "pbi01{{ vm_name }}"
+
+- name: Create security group that allows incoming traffic on SSH/HTTP/HTTPS
+  azure_rm_securitygroup:
+    client_id: "{{ azure_client_id }}"
+    tenant: "{{ azure_tenant }}"
+    subscription_id: "{{ azure_subscription_id }}"
+    secret: "{{ azure_secret }}"
+    resource_group: "{{ res_group }}"
+    name: "sg{{vm_name}}"
+    rules:
+      - name: SSH
+        protocol: Tcp
+        destination_port_range: 22
+        access: Allow
+        priority: 101
+        direction: Inbound
+      - name: HTTP
+        protocol: Tcp
+        destination_port_range: 80
+        access: Allow
+        priority: 103
+        direction: Inbound
+      - name: HTTPS
+        protocol: Tcp
+        destination_port_range: 443
+        access: Allow
+        priority: 104
+        direction: Inbound
+
+- name: Create NIC for Linux VM
+  azure_rm_networkinterface:
+    client_id: "{{ azure_client_id }}"
+    tenant: "{{ azure_tenant }}"
+    subscription_id: "{{ azure_subscription_id }}"
+    secret: "{{ azure_secret }}"
+    resource_group: "{{ res_group }}"
+    name: "nic01{{ vm_name }}"
+    virtual_network: "vn_{{ lab_name }}"
+    subnet: "sn_{{ lab_name }}"
+    ip_configurations:
+    - name: "primary"
+      public_ip_name: "pbi01{{ vm_name }}"
+      private_ip_address: "{{ ip_address }}"
+      private_ip_allocation_method: "Static"
+      primary: "yes"
+    security_group: "sg{{ vm_name }}"
+
+- name: Create Linux VM
+  azure_rm_virtualmachine:
+    client_id: "{{ azure_client_id }}"
+    tenant: "{{ azure_tenant }}"
+    subscription_id: "{{ azure_subscription_id }}"
+    secret: "{{ azure_secret }}"
+    resource_group: "{{ res_group }}"
+    name: "{{ vm_name }}"
+    vm_size: "{{ vm_size }}"
+    managed_disk_type: "{{ storage_class }}"
+    storage_account: "lrs{{ vm_name }}"
+    storage_container: "vms{{vm_name}}"
+    storage_blob: "disk_{{vm_name}}.vhd"
+    admin_username: "{{ default_username }}"
+    ssh_password_enabled: no
+    ssh_public_keys: "{{ }}"
+    network_interfaces: "nic01{{vm_name}}"
+    image: "{{ image }}"
