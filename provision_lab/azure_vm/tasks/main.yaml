@@ -1,6 +1,6 @@
 
 
-- name: Create storage account
+- name: Create storage account for {{ vm_name }}
   azure_rm_storageaccount:
     client_id: "{{ azure_client_id }}"
     tenant: "{{ azure_tenant }}"
@@ -10,7 +10,7 @@
     name: "lrs{{ vm_name }}"
     account_type: "{{ storage_class }}"
 
-- name: Create public ip for Linux VM
+- name: Create public ip for {{ vm_name }}
   azure_rm_publicipaddress:
     client_id: "{{ azure_client_id }}"
     tenant: "{{ azure_tenant }}"
@@ -19,6 +19,7 @@
     resource_group: "{{ res_group }}"
     allocation_method: Static
     name: "pbi01{{ vm_name }}"
+  register: public_ip
 
 - name: Create security group that allows incoming traffic on SSH/HTTP/HTTPS
   azure_rm_securitygroup:
@@ -65,6 +66,7 @@
       private_ip_allocation_method: "Static"
       primary: "yes"
     security_group: "sg{{ vm_name }}"
+  register: nic
 
 - name: Create Linux VM
   azure_rm_virtualmachine:
@@ -81,6 +83,13 @@
     storage_blob: "disk_{{vm_name}}.vhd"
     admin_username: "{{ default_username }}"
     ssh_password_enabled: no
-    ssh_public_keys: "{{ }}"
+    ssh_public_keys: "{{ ssh_key_list }}"
     network_interfaces: "nic01{{vm_name}}"
     image: "{{ image }}"
+
+- debug:
+    msg: 
+      - "New VM {{ vm_name }} created."
+      - " MAC address  : {{ nic.state.mac_address }}"
+      - " Private IP   : {{ nic.state.ip_configuration.private_ip_address }}"
+      - " Public IP    : {{ public_ip.state.ip_address }}"

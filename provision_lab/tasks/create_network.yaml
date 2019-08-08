@@ -1,0 +1,20 @@
+- name: Create virtual network
+  azure_rm_virtualnetwork:
+    client_id: "{{ azure_client_id }}"
+    tenant: "{{ azure_tenant }}"
+    subscription_id: "{{ azure_subscription_id }}"
+    secret: "{{ azure_secret }}"
+    resource_group: "{{ res_group }}"
+    name: "vn_{{ lab_name }}"
+    address_prefixes: "{{virtual_network_cidr}}"
+
+- name: Add subnet
+  azure_rm_subnet:
+    client_id: "{{ azure_client_id }}"
+    tenant: "{{ azure_tenant }}"
+    subscription_id: "{{ azure_subscription_id }}"
+    secret: "{{ azure_secret }}"
+    resource_group: "{{ res_group }}"
+    name: "sn_{{ lab_name }}"
+    address_prefix: "{{virtual_network_cidr}}"
+    virtual_network: "vn_{{ lab_name }}"

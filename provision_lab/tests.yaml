@@ -1,0 +1,33 @@
+---
+- name: "Tests with Azure"
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+
+  tasks:
+    - name: Get resource group fact
+      azure_rm_resourcegroup_facts:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        name: "test"
+      register: resource_group
+    
+    - when: resource_group.ansible_facts.azure_resourcegroups | length > 0
+      debug:
+        msg: "Resource group exists"
+    
+    - when: resource_group.ansible_facts.azure_resourcegroups | length == 0
+      debug:
+        msg: "Resource group does not exists. Creating"
+
+    - name: Create ressource group 
+      azure_rm_resourcegroup:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        name: "test"
+        location: "{{ res_group_location }}"
